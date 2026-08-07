@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mundo Ofertas — ofertas y descuentos para Latinoamérica</title>
+<meta name="description" content="Canal automatizado de ofertas y descuentos verificados para Latinoamérica. Publicamos en Telegram y WhatsApp las 24 horas.">
+
+<!-- ============================================================
+     PEGÁ ACÁ EL META TAG DE VERIFICACIÓN DE IMPACT
+     Impact te va a dar una línea tipo:
+     <meta name="impact-site-verification" value="XXXXXXXX">
+     Va justo acá abajo, antes de cualquier otro tag.
+     ============================================================ -->
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;600;700&family=Public+Sans:wght@400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --amarillo:#F5D000;
+    --tinta:#151310;
+    --papel:#FBFAF7;
+    --sello:#D3222A;
+    --gris:#6E6A61;
+    --borde:#151310;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+
+  body{
+    background:var(--amarillo);
+    color:var(--tinta);
+    font-family:'Public Sans',system-ui,sans-serif;
+    font-size:17px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+  .cinta{
+    border-bottom:2px solid var(--borde);
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    overflow:hidden;
+    white-space:nowrap;
+  }
+  .cinta div{
+    display:inline-block;
+    padding:9px 0;
+    animation:corre 38s linear infinite;
+  }
+  .cinta span{padding:0 26px}
+  @keyframes corre{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  header{padding:64px 0 56px}
+
+  .marca{
+    font-family:'Familjen Grotesk',sans-serif;
+    font-weight:700;
+    font-size:clamp(52px,11vw,124px);
+    line-height:.86;
+    letter-spacing:-.035em;
+    text-transform:uppercase;
+  }
+  .marca em{
+    font-style:normal;
+    display:inline-block;
+    background:var(--sello);
+    color:var(--amarillo);
+    padding:0 .12em;
+    transform:rotate(-1.6deg);
+  }
+
+  .bajada{
+    max-width:34ch;
+    margin-top:28px;
+    font-size:clamp(18px,2.3vw,22px);
+    line-height:1.4;
+  }
+
+  .botones{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
+  .btn{
+    display:inline-block;
+    font-family:'Space Mono',monospace;
+    font-weight:700;
+    font-size:14px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    text-decoration:none;
+    padding:15px 26px;
+    border:2px solid var(--borde);
+    background:var(--tinta);
+    color:var(--amarillo);
+    box-shadow:5px 5px 0 rgba(21,19,16,.22);
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .btn.claro{background:var(--papel);color:var(--tinta)}
+  .btn:hover{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(21,19,16,.22)}
+  .btn:focus-visible{outline:3px solid var(--sello);outline-offset:3px}
+
+  .panel{
+    background:var(--papel);
+    border:2px solid var(--borde);
+    box-shadow:9px 9px 0 rgba(21,19,16,.24);
+    margin-bottom:64px;
+  }
+  .panel-cab{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    flex-wrap:wrap;
+    padding:16px 22px;
+    border-bottom:2px solid var(--borde);
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+  }
+  .vivo{display:flex;align-items:center;gap:9px}
+  .punto{
+    width:9px;height:9px;border-radius:50%;
+    background:var(--sello);
+    animation:latir 1.9s ease-in-out infinite;
+  }
+  @keyframes latir{0%,100%{opacity:1}50%{opacity:.25}}
+
+  #feed{list-style:none}
+  #feed li{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:20px;
+    padding:16px 22px;
+    border-bottom:1px solid rgba(21,19,16,.14);
+  }
+  #feed li:last-child{border-bottom:0}
+  .titulo-oferta{font-weight:600}
+  .precios{font-family:'Space Mono',monospace;white-space:nowrap}
+  .antes{color:var(--gris);text-decoration:line-through;margin-right:10px;font-size:14px}
+  .ahora{color:var(--sello);font-weight:700}
+
+  .vacio{padding:44px 22px;text-align:center}
+  .vacio p{max-width:44ch;margin:0 auto;color:var(--gris)}
+  .vacio strong{display:block;color:var(--tinta);font-size:19px;margin-bottom:8px}
+
+  section{padding:56px 0;border-top:2px solid var(--borde)}
+  h2{
+    font-family:'Familjen Grotesk',sans-serif;
+    font-weight:700;
+    font-size:clamp(28px,4.4vw,44px);
+    line-height:1.04;
+    letter-spacing:-.02em;
+    margin-bottom:28px;
+  }
+  .rejilla{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:26px}
+  .rejilla h3{
+    font-family:'Space Mono',monospace;
+    font-size:13px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    margin-bottom:9px;
+  }
+  .rejilla p{font-size:16px}
+
+  .socios{
+    display:flex;flex-wrap:wrap;gap:10px;
+    font-family:'Space Mono',monospace;font-size:13px;
+  }
+  .socios span{border:2px solid var(--borde);padding:7px 15px;background:var(--papel)}
+
+  footer{
+    border-top:2px solid var(--borde);
+    background:var(--tinta);
+    color:var(--papel);
+    padding:44px 0;
+    font-size:15px;
+  }
+  footer a{color:var(--amarillo)}
+  .aviso{
+    max-width:62ch;
+    margin-top:18px;
+    color:#B5B0A6;
+    font-size:14px;
+    line-height:1.5;
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+
+<div class="cinta">
+  <div>
+    <span>Ofertas verificadas</span><span>·</span><span>Publicación automática 24/7</span><span>·</span><span>Envíos a Latinoamérica</span><span>·</span><span>Sin registro</span><span>·</span>
+    <span>Ofertas verificadas</span><span>·</span><span>Publicación automática 24/7</span><span>·</span><span>Envíos a Latinoamérica</span><span>·</span><span>Sin registro</span><span>·</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header>
+    <h1 class="marca">Mundo<br><em>Ofertas</em></h1>
+    <p class="bajada">Un bot rastrea bajadas de precio todo el día y las publica en Telegram y WhatsApp. Vos solo mirás el canal.</p>
+    <div class="botones">
+      <a class="btn" href="https://t.me/mundoofertaslatam">Entrar al canal de Telegram</a>
+      <a class="btn claro" href="https://whatsapp.com/channel/0029VbDpHvzA89MfIaYRdf3Q">Seguir en WhatsApp</a>
+    </div>
+  </header>
+
+  <div class="panel">
+    <div class="panel-cab">
+      <div class="vivo"><span class="punto"></span> Últimas bajadas de precio</div>
+      <div id="sello-hora">—</div>
+    </div>
+    <ul id="feed"></ul>
+    <div class="vacio" id="vacio">
+      <p><strong>El feed todavía no está conectado.</strong>
+      Cuando el bot escriba <code>ofertas.json</code> en esta misma carpeta, las ofertas aparecen acá solas. Mientras tanto, todo se publica en el canal de Telegram.</p>
+    </div>
+  </div>
+
+  <section>
+    <h2>Cómo funciona</h2>
+    <div class="rejilla">
+      <div>
+        <h3>Rastreo</h3>
+        <p>El bot consulta las APIs de las tiendas asociadas y detecta bajadas reales de precio, no descuentos inflados sobre un precio de lista.</p>
+      </div>
+      <div>
+        <h3>Filtrado</h3>
+        <p>Se descartan productos sin stock, vendedores sin reputación y ofertas que no llegan a Latinoamérica.</p>
+      </div>
+      <div>
+        <h3>Publicación</h3>
+        <p>Lo que pasa el filtro sale al canal de Telegram al instante, y en un resumen diario para el canal de WhatsApp.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Categorías que cubrimos</h2>
+    <div class="socios">
+      <span>Electrónica</span><span>Hogar</span><span>Belleza</span><span>Teléfonos</span><span>Accesorios</span><span>Moda</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Quiénes somos</h2>
+    <p style="max-width:58ch">Mundo Ofertas es un proyecto de <strong>Ratio Paraguay</strong>, un estudio de medios con base en Luque, Paraguay. Trabajamos con programas de afiliados oficiales y publicamos únicamente productos de tiendas con las que tenemos una relación activa.</p>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <p><strong>Mundo Ofertas</strong> — un proyecto de Ratio Paraguay, Luque, Paraguay.</p>
+    <p style="margin-top:10px">
+      <a href="https://t.me/mundoofertaslatam">Telegram</a> ·
+      <a href="https://whatsapp.com/channel/0029VbDpHvzA89MfIaYRdf3Q">WhatsApp</a>
+    </p>
+    <p class="aviso">Aviso de afiliación: algunos enlaces publicados en este sitio y en nuestros canales son enlaces de afiliado. Si comprás a través de ellos, podemos recibir una comisión de la tienda sin costo adicional para vos. Esto no afecta el precio que pagás ni los productos que elegimos publicar.</p>
+  </div>
+</footer>
+
+<script>
+  (async function () {
+    const feed = document.getElementById('feed');
+    const vacio = document.getElementById('vacio');
+    const sello = document.getElementById('sello-hora');
+
+    try {
+      const r = await fetch('ofertas.json', { cache: 'no-store' });
+      if (!r.ok) throw new Error('sin archivo');
+      const datos = await r.json();
+      if (!Array.isArray(datos) || datos.length === 0) throw new Error('vacio');
+
+      feed.innerHTML = datos.slice(0, 8).map(function (o) {
+        const antes = o.precio_antes ? '<span class="antes">' + o.precio_antes + '</span>' : '';
+        return '<li><span class="titulo-oferta">' + o.titulo +
+               '</span><span class="precios">' + antes +
+               '<span class="ahora">' + o.precio_ahora + '</span></span></li>';
+      }).join('');
+
+      vacio.style.display = 'none';
+      sello.textContent = 'Actualizado ' + new Date().toLocaleString('es-PY', {
+        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+      });
+    } catch (e) {
+      sello.textContent = 'Feed sin conectar';
+    }
+  })();
+</script>
+
+</body>
+</html>
