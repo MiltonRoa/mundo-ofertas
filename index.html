@@ -6,14 +6,13 @@
 <title>Mundo Ofertas — ofertas y descuentos para Latinoamérica</title>
 <meta name="description" content="Canal automatizado de ofertas y descuentos verificados para Latinoamérica. Publicamos en Telegram y WhatsApp las 24 horas.">
 
-<!-- ============================================================
-     PEGÁ ACÁ EL META TAG DE VERIFICACIÓN DE IMPACT
-     Impact te va a dar una línea tipo:
-     <meta name="impact-site-verification" value="XXXXXXXX">
-     Va justo acá abajo, antes de cualquier otro tag.
-     ============================================================ -->
-
 <meta name='impact-site-verification' value='9b2809de-1d1c-4ab9-ba80-faf68b384cc8'>
+
+<meta property="og:title" content="Mundo Ofertas">
+<meta property="og:description" content="Un bot rastrea bajadas de precio todo el día y las publica en Telegram y WhatsApp.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://miltonroa.github.io/mundo-ofertas/">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;600;700&family=Public+Sans:wght@400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -123,6 +122,7 @@
     letter-spacing:.12em;
     text-transform:uppercase;
   }
+  .panel-cab a{color:inherit}
   .vivo{display:flex;align-items:center;gap:9px}
   .punto{
     width:9px;height:9px;border-radius:50%;
@@ -131,24 +131,14 @@
   }
   @keyframes latir{0%,100%{opacity:1}50%{opacity:.25}}
 
-  #feed{list-style:none}
-  #feed li{
-    display:flex;
-    justify-content:space-between;
-    align-items:baseline;
-    gap:20px;
-    padding:16px 22px;
-    border-bottom:1px solid rgba(21,19,16,.14);
+  .embeds{
+    padding:20px 22px;
+    display:grid;
+    gap:16px;
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));
+    align-items:start;
   }
-  #feed li:last-child{border-bottom:0}
-  .titulo-oferta{font-weight:600}
-  .precios{font-family:'Space Mono',monospace;white-space:nowrap}
-  .antes{color:var(--gris);text-decoration:line-through;margin-right:10px;font-size:14px}
-  .ahora{color:var(--sello);font-weight:700}
-
-  .vacio{padding:44px 22px;text-align:center}
-  .vacio p{max-width:44ch;margin:0 auto;color:var(--gris)}
-  .vacio strong{display:block;color:var(--tinta);font-size:19px;margin-bottom:8px}
+  .embeds iframe{max-width:100%!important}
 
   section{padding:56px 0;border-top:2px solid var(--borde)}
   h2{
@@ -218,13 +208,13 @@
 
   <div class="panel">
     <div class="panel-cab">
-      <div class="vivo"><span class="punto"></span> Últimas bajadas de precio</div>
-      <div id="sello-hora">—</div>
+      <div class="vivo"><span class="punto"></span> Publicado en el canal</div>
+      <div><a href="https://t.me/s/mundoofertaslatam">Ver todo el historial</a></div>
     </div>
-    <ul id="feed"></ul>
-    <div class="vacio" id="vacio">
-      <p><strong>El feed todavía no está conectado.</strong>
-      Cuando el bot escriba <code>ofertas.json</code> en esta misma carpeta, las ofertas aparecen acá solas. Mientras tanto, todo se publica en el canal de Telegram.</p>
+    <div class="embeds">
+      <script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-post="mundoofertaslatam/14" data-width="100%" data-color="D3222A"></script>
+      <script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-post="mundoofertaslatam/13" data-width="100%" data-color="D3222A"></script>
+      <script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-post="mundoofertaslatam/12" data-width="100%" data-color="D3222A"></script>
     </div>
   </div>
 
@@ -242,6 +232,24 @@
       <div>
         <h3>Publicación</h3>
         <p>Lo que pasa el filtro sale al canal de Telegram al instante, y en un resumen diario para el canal de WhatsApp.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Cómo elegimos las ofertas</h2>
+    <div class="rejilla">
+      <div>
+        <h3>Precio real</h3>
+        <p>Comparamos el precio actual contra el precio previo del mismo producto. Publicamos el porcentaje sin redondear a favor nuestro.</p>
+      </div>
+      <div>
+        <h3>Vendedor</h3>
+        <p>Miramos volumen de ventas y porcentaje de valoraciones positivas. Ambos datos van en cada publicación para que los verifiques.</p>
+      </div>
+      <div>
+        <h3>Transparencia</h3>
+        <p>Cada publicación lleva el aviso de comisión. No cobramos por destacar productos ni aceptamos pagos por publicar.</p>
       </div>
     </div>
   </section>
@@ -270,35 +278,6 @@
     <p class="aviso">Aviso de afiliación: algunos enlaces publicados en este sitio y en nuestros canales son enlaces de afiliado. Si comprás a través de ellos, podemos recibir una comisión de la tienda sin costo adicional para vos. Esto no afecta el precio que pagás ni los productos que elegimos publicar.</p>
   </div>
 </footer>
-
-<script>
-  (async function () {
-    const feed = document.getElementById('feed');
-    const vacio = document.getElementById('vacio');
-    const sello = document.getElementById('sello-hora');
-
-    try {
-      const r = await fetch('ofertas.json', { cache: 'no-store' });
-      if (!r.ok) throw new Error('sin archivo');
-      const datos = await r.json();
-      if (!Array.isArray(datos) || datos.length === 0) throw new Error('vacio');
-
-      feed.innerHTML = datos.slice(0, 8).map(function (o) {
-        const antes = o.precio_antes ? '<span class="antes">' + o.precio_antes + '</span>' : '';
-        return '<li><span class="titulo-oferta">' + o.titulo +
-               '</span><span class="precios">' + antes +
-               '<span class="ahora">' + o.precio_ahora + '</span></span></li>';
-      }).join('');
-
-      vacio.style.display = 'none';
-      sello.textContent = 'Actualizado ' + new Date().toLocaleString('es-PY', {
-        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
-      });
-    } catch (e) {
-      sello.textContent = 'Feed sin conectar';
-    }
-  })();
-</script>
 
 </body>
 </html>
