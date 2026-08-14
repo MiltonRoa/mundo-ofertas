@@ -1,0 +1,79 @@
+[ux_banner height="420px" bg_color="rgb(21,28,50)"]
+[text_box text_color="light" width="80" width__sm="95" position_x="50" position_y="50"]
+<h1>Comprá fácil. Recibí en Paraguay.</h1>
+<p>Productos nacionales con delivery incluido e importados de USA con precio final en guaraníes. Todo gestionado por Tarvo.</p>
+[button text="Ver la tienda" color="primary" style="shade" size="large" link="/tienda/"]
+[button text="Pedir por WhatsApp" color="success" style="shade" size="large" link="https://wa.me/595992805800" target="_blank"]
+[/text_box]
+[/ux_banner]
+
+[section padding="30px"]
+[row]
+[col span="4" align="center"]
+<h3>🇵🇾 Nacionales</h3>
+<p>Entrega rápida en Paraguay con delivery incluido.</p>
+[/col]
+[col span="4" align="center"]
+<h3>✈️ Importados de USA</h3>
+<p>Precio final, todo incluido. Llegan en 2 a 3 semanas.</p>
+[/col]
+[col span="4" align="center"]
+<h3>📲 Pedís por WhatsApp</h3>
+<p>Confirmamos tu pedido y coordinamos el pago en guaraníes.</p>
+[/col]
+[/row]
+[/section]
+
+[section padding="15px"]
+[row]
+[col span="12" align="center"]
+<h2>Comprá por categoría</h2>
+[button text="Tecnología" color="primary" style="outline" link="/categoria-producto/tecnologia/"]
+[button text="Electrodomésticos" color="primary" style="outline" link="/categoria-producto/electrodomesticos/"]
+[button text="Hogar y Cocina" color="primary" style="outline" link="/categoria-producto/hogar-y-cocina/"]
+[button text="Niños y Bebés" color="primary" style="outline" link="/categoria-producto/ninos-y-bebes/"]
+[button text="Deportes y Aire Libre" color="primary" style="outline" link="/categoria-producto/deportes-y-aire-libre/"]
+[button text="Moda y Accesorios" color="primary" style="outline" link="/categoria-producto/moda-y-accesorios/"]
+[button text="Belleza y Cuidado" color="primary" style="outline" link="/categoria-producto/belleza-y-cuidado/"]
+[/col]
+[/row]
+[/section]
+
+[section padding="10px"]
+[row]
+[col span="12"]
+<h2 style="text-align:center">Recién llegados</h2>
+[ux_products style="normal" columns="4" products="8" orderby="date" order="desc"]
+[/col]
+[/row]
+[/section]
+
+[section padding="10px"]
+[row]
+[col span="12"]
+<h2 style="text-align:center">Nacionales — entrega rápida</h2>
+[ux_products style="normal" columns="4" products="8" cat="nacionales" orderby="date" order="desc"]
+[button text="Ver todos los nacionales" color="primary" style="outline" link="/categoria-producto/nacionales/" align="center"]
+[/col]
+[/row]
+[/section]
+
+[section padding="10px"]
+[row]
+[col span="12"]
+<h2 style="text-align:center">Importados de USA</h2>
+[ux_products style="normal" columns="4" products="8" cat="importados" orderby="date" order="desc"]
+[button text="Ver todos los importados" color="primary" style="outline" link="/categoria-producto/importados/" align="center"]
+[/col]
+[/row]
+[/section]
+
+[section bg_color="rgb(21,28,50)" padding="40px"]
+[row]
+[col span="12" align="center"]
+<h2 style="color:#fff">¿Dudas? Hablemos.</h2>
+<p style="color:#cfd8ff">Escribinos y te ayudamos a encontrar lo que buscás.</p>
+[button text="WhatsApp 0992 805 800" color="success" style="shade" size="large" link="https://wa.me/595992805800" target="_blank"]
+[/col]
+[/row]
+[/section]
