@@ -7,6 +7,23 @@
 $cfg = @include dirname(__DIR__) . '/wa_config.php';
 if (!$cfg) { http_response_code(500); exit('sin config'); }
 
+function wlog($cfg, $m) {
+    @file_put_contents($cfg['state_dir'] . '/log.txt',
+        date('H:i:s ') . $m . "\n", FILE_APPEND);
+}
+
+// lector de diagnóstico protegido: ?debug=<verify_token>
+if (isset($_GET['debug'])) {
+    if ($_GET['debug'] !== $cfg['verify_token']) { http_response_code(403); exit('no'); }
+    header('Content-Type: text/plain; charset=utf-8');
+    echo "php=" . PHP_VERSION . " curl=" . (extension_loaded('curl') ? 'si' : 'NO')
+        . " mbstring=" . (extension_loaded('mbstring') ? 'si' : 'NO')
+        . " ssl=" . (extension_loaded('openssl') ? 'si' : 'NO') . "\n---\n";
+    $log = @file_get_contents($cfg['state_dir'] . '/log.txt') ?: '(sin log)';
+    echo implode("\n", array_slice(explode("\n", $log), -60));
+    exit;
+}
+
 // ---------- verificación del webhook (Meta manda GET al suscribir) ----------
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (($_GET['hub_mode'] ?? '') === 'subscribe'
@@ -121,6 +138,7 @@ $payload = json_encode([
     'system' => $system,
     'messages' => $hist,
 ], JSON_UNESCAPED_UNICODE);
+wlog($cfg, "msg de $from: " . mb_substr($text, 0, 60) . " | matches=" . count($matches));
 $ch = curl_init('https://api.anthropic.com/v1/messages');
 curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 45,
@@ -131,8 +149,12 @@ curl_setopt_array($ch, [
         'content-type: application/json',
     ],
 ]);
-$resp = json_decode(curl_exec($ch), true);
+$rawresp = curl_exec($ch);
+$hcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$herr = curl_error($ch);
 curl_close($ch);
+wlog($cfg, "haiku http=$hcode err=" . ($herr ?: '-') . " body=" . mb_substr((string) $rawresp, 0, 120));
+$resp = json_decode($rawresp, true);
 $reply = trim($resp['content'][0]['text'] ?? '');
 if ($reply === '') {
     $reply = 'Disculpá, tuve un problemita técnico 🙏 Probá de nuevo en un ratito o escribinos al 0992 805 800.';
@@ -168,6 +190,10 @@ function wa_send($cfg, $to, $body) {
             'Content-Type: application/json',
         ],
     ]);
-    curl_exec($ch);
+    $r = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $err = curl_error($ch);
     curl_close($ch);
+    wlog($cfg, "wa_send a $to http=$code err=" . ($err ?: '-')
+        . " body=" . mb_substr((string) $r, 0, 150));
 }
