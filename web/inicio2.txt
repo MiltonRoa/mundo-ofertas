@@ -1,0 +1,79 @@
+[ux_slider style="container" nav_style="simple" nav_color="light" bullet_style="circle" timer="6000"]
+
+[ux_banner height="520px" height__sm="420px" bg="{{FONDO1}}" bg_size="original" bg_overlay="rgba(15,20,38,.62)" bg_pos="center center"]
+[text_box text_color="light" width="70" width__sm="92" position_x="50" position_y="50"]
+<h1 style="font-size:2.6em;margin-bottom:.2em">Comprá fácil.<br>Recibí en Paraguay.</h1>
+<p style="font-size:1.15em;opacity:.9">Productos nacionales e importados de USA, con precio final en guaraníes y pedido por WhatsApp.</p>
+[button text="Ver productos" color="primary" style="shade" size="larger" link="#productos"]
+[button text="📲 WhatsApp" color="success" style="shade" size="larger" link="https://wa.me/595992805800" target="_blank"]
+[/text_box]
+[/ux_banner]
+
+[ux_banner height="520px" height__sm="420px" bg="{{FONDO2}}" bg_size="original" bg_overlay="rgba(15,20,38,.6)" bg_pos="center center"]
+[text_box text_color="light" width="70" width__sm="92" position_x="50" position_y="50"]
+<h2 style="font-size:2.2em;margin-bottom:.2em">✈️ Importados de USA</h2>
+<p style="font-size:1.15em;opacity:.9">Precio final, todo incluido. Te lo traemos del exterior: llega en 2 a 3 semanas.</p>
+[button text="Ver importados" color="primary" style="shade" size="larger" link="/categoria-producto/importados/"]
+[/text_box]
+[/ux_banner]
+
+[ux_banner height="520px" height__sm="420px" bg="{{FONDO3}}" bg_size="original" bg_overlay="rgba(15,20,38,.6)" bg_pos="center center"]
+[text_box text_color="light" width="70" width__sm="92" position_x="50" position_y="50"]
+<h2 style="font-size:2.2em;margin-bottom:.2em">🇵🇾 Nacionales con delivery incluido</h2>
+<p style="font-size:1.15em;opacity:.9">Entrega rápida en todo Paraguay. El precio que ves es el precio final.</p>
+[button text="Ver nacionales" color="primary" style="shade" size="larger" link="/categoria-producto/nacionales/"]
+[/text_box]
+[/ux_banner]
+
+[/ux_slider]
+
+[section padding="18px" padding__sm="10px"]
+[row]
+[col span="12" align="center"]
+[button text="Tecnología" color="primary" style="outline" link="/categoria-producto/tecnologia/"]
+[button text="Electrodomésticos" color="primary" style="outline" link="/categoria-producto/electrodomesticos/"]
+[button text="Hogar y Cocina" color="primary" style="outline" link="/categoria-producto/hogar-y-cocina/"]
+[button text="Niños y Bebés" color="primary" style="outline" link="/categoria-producto/ninos-y-bebes/"]
+[button text="Deportes" color="primary" style="outline" link="/categoria-producto/deportes-y-aire-libre/"]
+[button text="Moda" color="primary" style="outline" link="/categoria-producto/moda-y-accesorios/"]
+[button text="Belleza" color="primary" style="outline" link="/categoria-producto/belleza-y-cuidado/"]
+[/col]
+[/row]
+[/section]
+
+<div id="productos"></div>
+
+[section padding="12px"]
+[row]
+[col span="12"]
+<h2 style="text-align:center">Recién llegados</h2>
+[ux_products style="normal" columns="4" products="12" orderby="date" order="desc"]
+[button text="Ver toda la tienda" color="primary" size="large" link="/tienda/" align="center"]
+[/col]
+[/row]
+[/section]
+
+[section padding="12px" bg_color="rgb(246,247,250)"]
+[row]
+[col span="6" span__sm="12"]
+<h3 style="text-align:center">🇵🇾 Nacionales</h3>
+[ux_products style="normal" columns="2" products="4" cat="nacionales" orderby="date" order="desc"]
+[button text="Todos los nacionales" color="primary" style="outline" link="/categoria-producto/nacionales/" align="center"]
+[/col]
+[col span="6" span__sm="12"]
+<h3 style="text-align:center">✈️ Importados de USA</h3>
+[ux_products style="normal" columns="2" products="4" cat="importados" orderby="date" order="desc"]
+[button text="Todos los importados" color="primary" style="outline" link="/categoria-producto/importados/" align="center"]
+[/col]
+[/row]
+[/section]
+
+[section bg_color="rgb(21,28,50)" padding="42px"]
+[row]
+[col span="12" align="center"]
+<h2 style="color:#fff">¿Buscás algo en particular?</h2>
+<p style="color:#cfd8ff">Escribinos y te lo conseguimos — nacionales o importado de USA.</p>
+[button text="📲 WhatsApp 0992 805 800" color="success" style="shade" size="larger" link="https://wa.me/595992805800" target="_blank"]
+[/col]
+[/row]
+[/section]
