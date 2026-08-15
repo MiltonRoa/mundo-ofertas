@@ -98,7 +98,13 @@ function buscar($rows, $q) {
     foreach ($rows as $r) {
         $t = sin_acentos($r['title']);
         $score = 0;
-        foreach ($palabras as $w) if (str_contains($t, $w)) $score++;
+        foreach ($palabras as $w) {
+            // plural crudo es: "bicicletas"→"bicicleta", "aires"→"aire"
+            $stem = (mb_strlen($w) > 4 && str_ends_with($w, 's'))
+                ? rtrim(mb_substr($w, 0, -1), 'e') : $w;
+            if (str_contains($t, $w) || str_contains($t, $stem)
+                || ($stem !== $w && str_contains($t, mb_substr($w, 0, -1)))) $score++;
+        }
         if ($score > 0) $scored[] = [$score, $r];
     }
     usort($scored, fn($a, $b) => $b[0] <=> $a[0]);
