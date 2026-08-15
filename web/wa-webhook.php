@@ -62,10 +62,18 @@ if ($text === '') {
 }
 
 // ---------- catálogo (cache 15 min) ----------
+function http_get($url) {
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 25, CURLOPT_FOLLOWLOCATION => true]);
+    $r = curl_exec($ch);
+    curl_close($ch);
+    return $r;
+}
 function catalogo($cfg) {
     $cache = $cfg['state_dir'] . '/catalog.csv';
     if (!file_exists($cache) || time() - filemtime($cache) > 900) {
-        $csv = @file_get_contents('https://miltonroa.github.io/mundo-ofertas/catalog/catalog.csv');
+        $csv = http_get('https://miltonroa.github.io/mundo-ofertas/catalog/catalog.csv');
         if ($csv && strlen($csv) > 500) file_put_contents($cache, $csv);
     }
     $rows = [];
@@ -138,7 +146,7 @@ $payload = json_encode([
     'system' => $system,
     'messages' => $hist,
 ], JSON_UNESCAPED_UNICODE);
-wlog($cfg, "msg de $from: " . mb_substr($text, 0, 60) . " | matches=" . count($matches));
+wlog($cfg, "msg de $from: " . mb_substr($text, 0, 60) . " | catalogo=" . count(catalogo($cfg)) . " matches=" . count($matches));
 $ch = curl_init('https://api.anthropic.com/v1/messages');
 curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 45,
