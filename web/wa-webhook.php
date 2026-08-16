@@ -61,6 +61,12 @@ if ($text === '') {
     echo 'ok'; exit;
 }
 
+// links de catálogo compartidos: no adivinar jamás, pedir el nombre
+if (preg_match('~wa\.me/p/|enlace para ver el art~iu', $text)) {
+    wa_send($cfg, $from, '¡Vi que me compartiste un producto del catálogo! 😄 Los links no los puedo abrir todavía — decime el *nombre* del producto (como figura en la ficha) y te paso precio y detalles al toque.');
+    echo 'ok'; exit;
+}
+
 // ---------- catálogo (cache 15 min) ----------
 function http_get($url) {
     $ch = curl_init($url);
@@ -91,9 +97,16 @@ function sin_acentos($s) {
     return strtr(mb_strtolower($s, 'UTF-8'),
         ['á'=>'a','é'=>'e','í'=>'i','ó'=>'o','ú'=>'u','ñ'=>'n','ü'=>'u']);
 }
+const STOPWORDS = ['que','tenes','tienes','tiene','hay','para','con','algo',
+    'quiero','busco','dame','todas','todos','opciones','opcion','ese','esa',
+    'este','esta','esto','como','cual','cuales','precio','precios','cuanto',
+    'cuesta','sale','del','las','los','una','uno','unos','unas','ver','mas',
+    'por','favor','hola','buenas','buenos','dias','tardes','noches','quisiera',
+    'necesito','vende','venden','sobre','otro','otra','otros','otras','algun',
+    'alguna','sigue','enlace','articulo','whatsapp','https'];
 function buscar($rows, $q) {
     $palabras = array_filter(preg_split('/\W+/u', sin_acentos($q)),
-        fn($w) => mb_strlen($w) >= 3);
+        fn($w) => mb_strlen($w) >= 4 && !in_array($w, STOPWORDS));
     $scored = [];
     foreach ($rows as $r) {
         $t = sin_acentos($r['title']);
@@ -103,7 +116,9 @@ function buscar($rows, $q) {
             $stem = (mb_strlen($w) > 4 && str_ends_with($w, 's'))
                 ? rtrim(mb_substr($w, 0, -1), 'e') : $w;
             if (str_contains($t, $w) || str_contains($t, $stem)
-                || ($stem !== $w && str_contains($t, mb_substr($w, 0, -1)))) $score++;
+                || ($stem !== $w && str_contains($t, mb_substr($w, 0, -1)))) {
+                $score += mb_strlen($stem); // palabras largas pesan más
+            }
         }
         if ($score > 0) $scored[] = [$score, $r];
     }
@@ -138,6 +153,8 @@ REGLAS:
 - Productos nacionales: delivery incluido, entrega rápida en Paraguay. Productos importados de USA: precio final todo incluido, llegan en 2 a 3 semanas.
 - PROHIBIDO mencionar Amazon o la tienda de origen de un producto. Decí "importado de USA".
 - Solo ofrecé productos del CONTEXTO de abajo. Si no hay nada que encaje, decilo con honestidad y ofrecé buscar con otras palabras o ver todo en https://tarvo.com.py
+- Si hay VARIAS opciones relevantes en el CONTEXTO, mostralas en lista (hasta 6, con nombre corto y precio) — no elijas una sola salvo que el cliente pida algo específico.
+- Si el cliente manda un link o menciona un producto que NO está en el CONTEXTO: pedile el nombre exacto; JAMÁS adivines ni inventes de qué producto se trata.
 - NUNCA inventes stock, precios, descuentos ni plazos. No prometas nada fuera de estas reglas.
 - Si el cliente quiere COMPRAR/pagar/confirmar un pedido, pide hablar con una persona, o pregunta algo que no sabés: respondé breve y agregá EXACTAMENTE la marca <<HUMANO>> al final (el sistema avisa a Milton, el dueño, que sigue la conversación personalmente).
 - Podés compartir el link https://tarvo.com.py para ver fotos y todo el catálogo.
