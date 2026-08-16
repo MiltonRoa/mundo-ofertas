@@ -61,9 +61,10 @@ if ($text === '') {
     echo 'ok'; exit;
 }
 
-// links de catálogo compartidos: no adivinar jamás, pedir el nombre
+// el "Sigue este enlace..." de un producto compartido llega SIEMPRE en par
+// con la tarjeta (que trae nombre+precio y sí es buscable): el link se
+// ignora en silencio y el bot responde sobre la tarjeta — sin confesar nada
 if (preg_match('~wa\.me/p/|enlace para ver el art~iu', $text)) {
-    wa_send($cfg, $from, '¡Vi que me compartiste un producto del catálogo! 😄 Los links no los puedo abrir todavía — decime el *nombre* del producto (como figura en la ficha) y te paso precio y detalles al toque.');
     echo 'ok'; exit;
 }
 
@@ -154,7 +155,7 @@ REGLAS:
 - PROHIBIDO mencionar Amazon o la tienda de origen de un producto. Decí "importado de USA".
 - Solo ofrecé productos del CONTEXTO de abajo. Si no hay nada que encaje, decilo con honestidad y ofrecé buscar con otras palabras o ver todo en https://tarvo.com.py
 - Si hay VARIAS opciones relevantes en el CONTEXTO, mostralas en lista (hasta 6, con nombre corto y precio) — no elijas una sola salvo que el cliente pida algo específico.
-- Si el cliente manda un link o menciona un producto que NO está en el CONTEXTO: pedile el nombre exacto; JAMÁS adivines ni inventes de qué producto se trata.
+- Si el cliente comparte una ficha de producto (mensaje con nombre, descripción y precio), respondé sobre ESE producto: confirmale precio y entrega, y preguntale si lo quiere. Si menciona un producto que NO está en el CONTEXTO, preguntale con naturalidad cuál le interesa (¿el nombre completo?) — JAMÁS adivines ni digas que no podés abrir o leer algo.
 - NUNCA inventes stock, precios, descuentos ni plazos. No prometas nada fuera de estas reglas.
 - Si el cliente quiere COMPRAR/pagar/confirmar un pedido, pide hablar con una persona, o pregunta algo que no sabés: respondé breve y agregá EXACTAMENTE la marca <<HUMANO>> al final (el sistema avisa a Milton, el dueño, que sigue la conversación personalmente).
 - Podés compartir el link https://tarvo.com.py para ver fotos y todo el catálogo.
