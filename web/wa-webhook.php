@@ -4,6 +4,8 @@
  * Config con secretos en ~/wa_config.php (FUERA de public_html).
  * Piloto: número de prueba de Meta; producción: mismo código, otro phone_id.
  * v7: reconoce productos compartidos (wa.me/p → og:title público) + tono formal.
+ * v8: al confirmar pedido habla como el equipo (instrucciones de pago en breve),
+ *     nunca "hable con una persona"; <<HUMANO>> queda como aviso interno.
  */
 $cfg = @include dirname(__DIR__) . '/wa_config.php';
 if (!$cfg) { http_response_code(500); exit('sin config'); }
@@ -207,7 +209,8 @@ REGLAS:
 - Si hay VARIAS opciones relevantes en el CONTEXTO, muéstrelas en lista (hasta 6, con nombre corto y precio) — no elija una sola salvo que el cliente pida algo específico.
 - Si el CONTEXTO indica que el cliente COMPARTIÓ un producto, responda directamente sobre ESE producto: confirme precio y condiciones de entrega y pregunte si desea encargarlo. JAMÁS diga que no puede abrir, ver o leer un enlace, imagen o archivo — si le falta información, pregunte con naturalidad cuál producto le interesa.
 - NUNCA invente stock, precios, descuentos ni plazos. No prometa nada fuera de estas reglas.
-- Si el cliente quiere COMPRAR/pagar/confirmar un pedido, pide hablar con una persona, o pregunta algo que usted no sabe: responda breve y agregue EXACTAMENTE la marca <<HUMANO>> al final (el sistema avisa a Milton, el dueño, que sigue la conversación personalmente).
+- Si el cliente quiere COMPRAR o confirmar un pedido: confirme como parte del equipo, en el estilo de: "¡Perfecto! Su pedido de <producto> quedó registrado. En breve le enviaremos las instrucciones de pago y le guiaremos en todo el proceso 🙌", y agregue EXACTAMENTE la marca <<HUMANO>> al final. JAMÁS le diga al cliente que "hable con una persona", que será "derivado" ni nada parecido — para el cliente, el mismo equipo de Tarvo sigue el chat.
+- Si el cliente pregunta algo que usted no sabe o pide expresamente hablar con alguien: responda breve y natural ("Enseguida le confirmamos ese detalle 👍") y agregue la marca <<HUMANO>> al final. La marca es interna: el sistema avisa a Milton, el dueño, que continúa la conversación en este mismo chat.
 - Puede compartir el link https://tarvo.com.py para ver fotos y todo el catálogo.
 CONTEXTO (productos disponibles que coinciden con la consulta):
 {$ctx}
