@@ -1,8 +1,9 @@
 <?php
 /**
- * Tarvo — Bot de WhatsApp (Cloud API + Claude Haiku).
+ * Tarvo — Bot de WhatsApp (Cloud API + Claude Haiku). v7
  * Config con secretos en ~/wa_config.php (FUERA de public_html).
  * Piloto: número de prueba de Meta; producción: mismo código, otro phone_id.
+ * v7: reconoce productos compartidos (wa.me/p → og:title público) + tono formal.
  */
 $cfg = @include dirname(__DIR__) . '/wa_config.php';
 if (!$cfg) { http_response_code(500); exit('sin config'); }
@@ -57,22 +58,16 @@ $dd = array_slice(array_merge($dd, [$mid]), -200);
 file_put_contents($ddf, json_encode($dd));
 
 if ($text === '') {
-    wa_send($cfg, $from, 'Por ahora solo puedo leer mensajes de texto 🙏 Contame qué producto buscás.');
-    echo 'ok'; exit;
-}
-
-// el "Sigue este enlace..." de un producto compartido llega SIEMPRE en par
-// con la tarjeta (que trae nombre+precio y sí es buscable): el link se
-// ignora en silencio y el bot responde sobre la tarjeta — sin confesar nada
-if (preg_match('~wa\.me/p/|enlace para ver el art~iu', $text)) {
+    wa_send($cfg, $from, 'Por ahora solo puedo leer mensajes de texto 🙏 Cuénteme qué producto busca.');
     echo 'ok'; exit;
 }
 
 // ---------- catálogo (cache 15 min) ----------
-function http_get($url) {
+function http_get($url, $ua = null) {
     $ch = curl_init($url);
     curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 25, CURLOPT_FOLLOWLOCATION => true]);
+        CURLOPT_TIMEOUT => 25, CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_USERAGENT => $ua ?: 'TarvoBot/1.0']);
     $r = curl_exec($ch);
     curl_close($ch);
     return $r;
@@ -104,7 +99,7 @@ const STOPWORDS = ['que','tenes','tienes','tiene','hay','para','con','algo',
     'cuesta','sale','del','las','los','una','uno','unos','unas','ver','mas',
     'por','favor','hola','buenas','buenos','dias','tardes','noches','quisiera',
     'necesito','vende','venden','sobre','otro','otra','otros','otras','algun',
-    'alguna','sigue','enlace','articulo','whatsapp','https'];
+    'alguna','sigue','enlace','articulo','whatsapp','https','comparto','producto'];
 function buscar($rows, $q) {
     $palabras = array_filter(preg_split('/\W+/u', sin_acentos($q)),
         fn($w) => mb_strlen($w) >= 4 && !in_array($w, STOPWORDS));
@@ -126,6 +121,42 @@ function buscar($rows, $q) {
     usort($scored, fn($a, $b) => $b[0] <=> $a[0]);
     return array_slice(array_column($scored, 1), 0, 8);
 }
+function fmt_gs($price) {
+    return number_format((float) preg_replace('/[^\d.]/', '', $price), 0, ',', '.');
+}
+
+// ---------- producto compartido (wa.me/p → página pública con og:title) ----------
+// La "tarjeta" linda del chat es una vista previa del cliente: al webhook solo
+// llega el texto "Sigue este enlace... https://wa.me/p/<id>/<tel>". Esa página
+// es pública y trae og:title + og:description (con el precio) del producto.
+function producto_compartido($cfg, $url) {
+    if (!preg_match('~wa\.me/p/(\d+)~', $url, $m)) return null;
+    $pid = $m[1];
+    $pcf = $cfg['state_dir'] . '/pcache.json';
+    $pc = json_decode(@file_get_contents($pcf), true) ?: [];
+    if (isset($pc[$pid])) return $pc[$pid];
+    $html = http_get($url, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+    if (!$html) return null;
+    $og = function ($prop) use ($html) {
+        return preg_match('~<meta property="og:' . $prop . '" content="([^"]*)"~', $html, $mm)
+            ? trim(html_entity_decode($mm[1], ENT_QUOTES | ENT_HTML5, 'UTF-8')) : '';
+    };
+    $title = preg_replace('~\s*(from|de)\s+Tarvo\s+(on|en)\s+WhatsApp\.?$~iu', '', $og('title'));
+    $title = trim(preg_replace('/\s+/u', ' ', $title));
+    if ($title === '') return null;
+    $p = ['title' => $title, 'desc' => mb_substr($og('description'), 0, 300)];
+    $pc = array_slice([$pid => $p] + $pc, 0, 100, true);
+    file_put_contents($pcf, json_encode($pc, JSON_UNESCAPED_UNICODE));
+    return $p;
+}
+
+$compartido = null;
+if (preg_match('~(https://wa\.me/p/\d+(?:/\d+)?)~i', $text, $mm)
+    || preg_match('~wa\.me/p/|enlace para ver el art~iu', $text)) {
+    $compartido = isset($mm[1]) ? producto_compartido($cfg, $mm[1]) : null;
+    if (!$compartido) { wlog($cfg, "link compartido de $from sin resolver — ignorado"); echo 'ok'; exit; }
+    $text = 'Le comparto este producto: ' . $compartido['title'];
+}
 
 // ---------- historial ----------
 $hf = $cfg['state_dir'] . "/h_$from.json";
@@ -133,32 +164,51 @@ $hist = json_decode(@file_get_contents($hf), true) ?: [];
 $hist[] = ['role' => 'user', 'content' => mb_substr($text, 0, 600)];
 $hist = array_slice($hist, -12);
 
-// contexto de productos: buscar con el mensaje actual (+ el anterior del cliente)
-$prev = '';
-for ($i = count($hist) - 2; $i >= 0; $i--) {
-    if ($hist[$i]['role'] === 'user') { $prev = $hist[$i]['content']; break; }
+// contexto de productos
+if ($compartido) {
+    // buscar la ficha exacta en el catálogo (mismo título, viene del mismo feed)
+    $tnorm = sin_acentos(preg_replace('/\s+/u', ' ', $compartido['title']));
+    $fila = null;
+    foreach (catalogo($cfg) as $r) {
+        $rn = sin_acentos(preg_replace('/\s+/u', ' ', $r['title']));
+        if ($rn === $tnorm || str_contains($rn, $tnorm) || str_contains($tnorm, $rn)) { $fila = $r; break; }
+    }
+    if ($fila) {
+        $ctx = "EL CLIENTE ACABA DE COMPARTIR LA FICHA DE ESTE PRODUCTO (responda directamente sobre él):\n"
+            . "- {$fila['title']} | Gs " . fmt_gs($fila['price']) . " | código {$fila['id']}\n";
+    } else {
+        $ctx = "EL CLIENTE ACABA DE COMPARTIR LA FICHA DE ESTE PRODUCTO (responda directamente sobre él):\n"
+            . "- {$compartido['title']}\n  Detalle: {$compartido['desc']}\n";
+    }
+    wlog($cfg, "msg de $from: [producto compartido] " . mb_substr($compartido['title'], 0, 50) . ($fila ? " | en catalogo" : " | solo og"));
+} else {
+    // buscar con el mensaje actual (+ el anterior del cliente)
+    $prev = '';
+    for ($i = count($hist) - 2; $i >= 0; $i--) {
+        if ($hist[$i]['role'] === 'user') { $prev = $hist[$i]['content']; break; }
+    }
+    $matches = buscar(catalogo($cfg), $text . ' ' . $prev);
+    $ctx = "";
+    foreach ($matches as $m) {
+        $ctx .= "- {$m['title']} | Gs " . fmt_gs($m['price']) . " | código {$m['id']}\n";
+    }
+    if ($ctx === '') $ctx = "(sin resultados para esta búsqueda)\n";
+    wlog($cfg, "msg de $from: " . mb_substr($text, 0, 60) . " | catalogo=" . count(catalogo($cfg)) . " matches=" . count($matches));
 }
-$matches = buscar(catalogo($cfg), $text . ' ' . $prev);
-$ctx = "";
-foreach ($matches as $m) {
-    $gs = number_format((float) preg_replace('/[^\d.]/', '', $m['price']), 0, ',', '.');
-    $ctx .= "- {$m['title']} | Gs {$gs} | código {$m['id']}\n";
-}
-if ($ctx === '') $ctx = "(sin resultados para esta búsqueda)\n";
 
 $system = <<<TXT
-Sos el asistente de ventas de Tarvo (tarvo.com.py), tienda paraguaya de compra gestionada. Respondés por WhatsApp.
+Es usted el asistente de ventas de Tarvo (tarvo.com.py), tienda paraguaya de compra gestionada. Responde por WhatsApp.
 REGLAS:
-- Español paraguayo (voseo), tono amable y directo, mensajes CORTOS estilo WhatsApp (máximo ~100 palabras, usá algún emoji con moderación).
+- Español FORMAL y cordial, trato de "usted" SIEMPRE. PROHIBIDO el voseo y las muletillas informales ("che", "dale", "capo", "genial"). Tono profesional y cálido, mensajes CORTOS estilo WhatsApp (máximo ~100 palabras, algún emoji con moderación).
 - Precios SIEMPRE en guaraníes: "Gs 1.234.567". Son precios finales.
 - Productos nacionales: delivery incluido, entrega rápida en Paraguay. Productos importados de USA: precio final todo incluido, llegan en 2 a 3 semanas.
-- PROHIBIDO mencionar Amazon o la tienda de origen de un producto. Decí "importado de USA".
-- Solo ofrecé productos del CONTEXTO de abajo. Si no hay nada que encaje, decilo con honestidad y ofrecé buscar con otras palabras o ver todo en https://tarvo.com.py
-- Si hay VARIAS opciones relevantes en el CONTEXTO, mostralas en lista (hasta 6, con nombre corto y precio) — no elijas una sola salvo que el cliente pida algo específico.
-- Si el cliente comparte una ficha de producto (mensaje con nombre, descripción y precio), respondé sobre ESE producto: confirmale precio y entrega, y preguntale si lo quiere. Si menciona un producto que NO está en el CONTEXTO, preguntale con naturalidad cuál le interesa (¿el nombre completo?) — JAMÁS adivines ni digas que no podés abrir o leer algo.
-- NUNCA inventes stock, precios, descuentos ni plazos. No prometas nada fuera de estas reglas.
-- Si el cliente quiere COMPRAR/pagar/confirmar un pedido, pide hablar con una persona, o pregunta algo que no sabés: respondé breve y agregá EXACTAMENTE la marca <<HUMANO>> al final (el sistema avisa a Milton, el dueño, que sigue la conversación personalmente).
-- Podés compartir el link https://tarvo.com.py para ver fotos y todo el catálogo.
+- PROHIBIDO mencionar Amazon o la tienda de origen de un producto. Diga "importado de USA".
+- Solo ofrezca productos del CONTEXTO de abajo. Si no hay nada que encaje, dígalo con honestidad y ofrezca buscar con otras palabras o ver todo en https://tarvo.com.py
+- Si hay VARIAS opciones relevantes en el CONTEXTO, muéstrelas en lista (hasta 6, con nombre corto y precio) — no elija una sola salvo que el cliente pida algo específico.
+- Si el CONTEXTO indica que el cliente COMPARTIÓ un producto, responda directamente sobre ESE producto: confirme precio y condiciones de entrega y pregunte si desea encargarlo. JAMÁS diga que no puede abrir, ver o leer un enlace, imagen o archivo — si le falta información, pregunte con naturalidad cuál producto le interesa.
+- NUNCA invente stock, precios, descuentos ni plazos. No prometa nada fuera de estas reglas.
+- Si el cliente quiere COMPRAR/pagar/confirmar un pedido, pide hablar con una persona, o pregunta algo que usted no sabe: responda breve y agregue EXACTAMENTE la marca <<HUMANO>> al final (el sistema avisa a Milton, el dueño, que sigue la conversación personalmente).
+- Puede compartir el link https://tarvo.com.py para ver fotos y todo el catálogo.
 CONTEXTO (productos disponibles que coinciden con la consulta):
 {$ctx}
 TXT;
@@ -170,7 +220,6 @@ $payload = json_encode([
     'system' => $system,
     'messages' => $hist,
 ], JSON_UNESCAPED_UNICODE);
-wlog($cfg, "msg de $from: " . mb_substr($text, 0, 60) . " | catalogo=" . count(catalogo($cfg)) . " matches=" . count($matches));
 $ch = curl_init('https://api.anthropic.com/v1/messages');
 curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 45,
@@ -189,7 +238,7 @@ wlog($cfg, "haiku http=$hcode err=" . ($herr ?: '-') . " body=" . mb_substr((str
 $resp = json_decode($rawresp, true);
 $reply = trim($resp['content'][0]['text'] ?? '');
 if ($reply === '') {
-    $reply = 'Disculpá, tuve un problemita técnico 🙏 Probá de nuevo en un ratito o escribinos al 0992 805 800.';
+    $reply = 'Disculpe, tuvimos un inconveniente técnico 🙏 Intente de nuevo en unos minutos o escríbanos al 0992 805 800.';
 }
 
 // ---------- derivación a humano (aviso por WhatsApp a Milton) ----------
