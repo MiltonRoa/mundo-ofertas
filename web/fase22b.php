@@ -17,9 +17,9 @@ $sl = '[ux_slider style="container" slide_width="100%" slide_align="center" '
     . 'nav_style="simple" nav_color="light" bullet_style="simple" '
     . 'timer="5000" auto_slide="true" pause_hover="true"]';
 $slides_desk =
-      '[ux_banner height="420px" bg="' . $B . '/web_heroA.jpg" bg_size="orginal" link="/tienda/"][/ux_banner]'
-    . '[ux_banner height="420px" bg="' . $B . '/web_heroB.jpg" bg_size="orginal" link="/categoria-producto/tecnologia/"][/ux_banner]'
-    . '[ux_banner height="420px" bg="' . $B . '/web_heroC.jpg" bg_size="orginal" link="/categoria-producto/hogar-y-cocina/"][/ux_banner]';
+      '[ux_banner height="420px" bg="' . $B . '/web_heroA.jpg" link="/tienda/"][/ux_banner]'
+    . '[ux_banner height="420px" bg="' . $B . '/web_heroB.jpg" link="/categoria-producto/tecnologia/"][/ux_banner]'
+    . '[ux_banner height="420px" bg="' . $B . '/web_heroC.jpg" link="/categoria-producto/hogar-y-cocina/"][/ux_banner]';
 $slides_mov =
       '[ux_banner height="480px" bg="' . $B . '/web_heroA_m.jpg" link="/tienda/"][/ux_banner]'
     . '[ux_banner height="480px" bg="' . $B . '/web_heroB_m.jpg" link="/categoria-producto/tecnologia/"][/ux_banner]'
