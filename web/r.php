@@ -19,6 +19,13 @@ if (isset($_GET['stats'])) {
         exit('no');
     }
     header('Content-Type: application/json');
+    if (isset($_GET['full'])) {   // reporte diario (22/11): clics + visitas
+        exit(json_encode(array(
+            'clicks' => json_decode(@file_get_contents($f) ?: '{}', true),
+            'views' => json_decode(
+                @file_get_contents($dir . '/views.json') ?: '{}', true),
+        )));
+    }
     exit(@file_get_contents($f) ?: '{}');
 }
 
@@ -40,6 +47,14 @@ if ($h && flock($h, LOCK_EX)) {
     $row['n']++;
     $row['last'] = time();
     $data[$c] = $row;
+    // clics POR DIA para el reporte (clave _d; digest la ignora)
+    $d = date('Y-m-d');
+    $data['_d'][$d][$c] = ($data['_d'][$d][$c] ?? 0) + 1;
+    foreach (array_keys($data['_d']) as $k) {
+        if ($k < date('Y-m-d', strtotime('-35 days'))) {
+            unset($data['_d'][$k]);
+        }
+    }
     ftruncate($h, 0);
     rewind($h);
     fwrite($h, json_encode($data));
