@@ -10,6 +10,18 @@
 $dir = __DIR__ . '/wa_state';
 $f = $dir . '/clicks.json';
 
+// --- 24/11 (Milton "no son mis clicks los que suman?"): AUTOEXCLUSIÓN —
+// visitar /r.php?yo=1 UNA vez por dispositivo marca ese navegador con
+// una cookie de 1 año y sus clics/visitas dejan de contarse (también
+// lo respeta el mu-plugin tarvo-stats.php). Excluirse no es sensible:
+// cualquiera que lo haga solo se borra a sí mismo de las métricas. ---
+if (isset($_GET['yo'])) {
+    setcookie('tarvo_yo', '1', time() + 86400 * 365, '/');
+    header('Content-Type: text/plain; charset=utf-8');
+    exit("Listo — este dispositivo ya NO suma clics ni visitas en las "
+        . "métricas de Tarvo (válido 1 año en este navegador).");
+}
+
 // --- stats para el digest (protegido con el verify_token del bot) ---
 if (isset($_GET['stats'])) {
     $cfg = @include dirname(__DIR__) . '/wa_config.php';
@@ -36,11 +48,12 @@ if (!$c || strpos($c, 'TRV-') !== 0) {
     exit;
 }
 
-// contar (lock contra clics simultáneos)
+// contar (lock contra clics simultáneos) — salvo dispositivos marcados
+// con la cookie de autoexclusión (Milton y Claude)
 if (!is_dir($dir)) {
     @mkdir($dir, 0700);
 }
-$h = @fopen($f, 'c+');
+$h = empty($_COOKIE['tarvo_yo']) ? @fopen($f, 'c+') : false;
 if ($h && flock($h, LOCK_EX)) {
     $data = json_decode(stream_get_contents($h) ?: '{}', true) ?: array();
     $row = $data[$c] ?? array('n' => 0, 'last' => 0);
