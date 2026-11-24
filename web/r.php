@@ -49,11 +49,17 @@ if (!$c || strpos($c, 'TRV-') !== 0) {
 }
 
 // contar (lock contra clics simultáneos) — salvo dispositivos marcados
-// con la cookie de autoexclusión (Milton y Claude)
+// con la cookie de autoexclusión (Milton y Claude) y ROBOTS (24/11:
+// las previews de Telegram visitaban cada link de los avisos ~5 veces
+// y el "clics de historias" medía crawlers, no gente)
 if (!is_dir($dir)) {
     @mkdir($dir, 0700);
 }
-$h = empty($_COOKIE['tarvo_yo']) ? @fopen($f, 'c+') : false;
+$ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+$robot = !$ua || preg_match('/bot|crawl|spider|slurp|curl|wget|facebook'
+    . 'externalhit|preview|monitor|python|powershell|go-http|httpclient'
+    . '|java|okhttp|headless|whatsapp|telegram|skype|viber|embed/i', $ua);
+$h = (empty($_COOKIE['tarvo_yo']) && !$robot) ? @fopen($f, 'c+') : false;
 if ($h && flock($h, LOCK_EX)) {
     $data = json_decode(stream_get_contents($h) ?: '{}', true) ?: array();
     $row = $data[$c] ?? array('n' => 0, 'last' => 0);
