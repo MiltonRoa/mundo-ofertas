@@ -25,6 +25,8 @@ $rubros = get_terms(array('taxonomy' => 'product_cat', 'parent' => 0,
                           'hide_empty' => true));
 $prom = 0; $hijos_n = 0;
 foreach ($rubros as $rubro) {
+    // Mayorista (fase38) tiene menú propio, fuera del dropdown Categorías
+    if ($rubro->name === 'Mayorista') { continue; }
     $hijos = get_terms(array('taxonomy' => 'product_cat',
                              'parent' => $rubro->term_id,
                              'hide_empty' => true));
