@@ -161,9 +161,11 @@ PHP;
 file_put_contents($mu . '/tarvo-mayorista.php', $code);
 $mu_md5 = substr(md5_file($mu . '/tarvo-mayorista.php'), 0, 10);
 
-// (2) banda Mayorista en la portada
-$pg = get_page_by_path('inicio');
-if (!$pg) { echo "FASE40-ERROR: no encuentro la pagina Inicio\n"; return; }
+// (2) banda Mayorista en la portada (la página configurada como front)
+$pg = get_post((int) get_option('page_on_front'));
+if (!$pg) { $pg = get_page_by_path('inicio'); }
+if (!$pg) { echo "FASE40-ERROR: no encuentro la portada\n"; return; }
+echo "portada: {$pg->ID} ({$pg->post_title})\n";
 $c = $pg->post_content;
 $may = get_term_by('name', 'Mayorista', 'product_cat');
 if (!$may) { echo "FASE40-ERROR: sin categoria Mayorista\n"; return; }
