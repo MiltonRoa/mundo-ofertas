@@ -34,6 +34,25 @@ add_filter('flatsome_share_links', function ($links, $extra) {
         $links['whatsapp']['atts']['rel'] = 'noopener nofollow';
         unset($links['whatsapp']['atts']['data-action']);
     }
+    // Instagram no tiene "compartir link" web — el icono lleva al
+    // perfil @tarvopy (pedido Milton 25/11 "falto el icono de instagram")
+    $cls = isset($links['facebook']['atts']['class'])
+        ? str_replace(' facebook', ' instagram',
+                      $links['facebook']['atts']['class'])
+        : 'icon button circle is-outline tooltip instagram';
+    $links['instagram'] = array(
+        'enabled' => true,
+        'atts' => array(
+            'href' => 'https://www.instagram.com/tarvopy',
+            'target' => '_blank',
+            'rel' => 'noopener nofollow',
+            'class' => $cls,
+            'title' => 'Seguinos en Instagram',
+            'aria-label' => 'Seguinos en Instagram',
+        ),
+        'icon' => get_flatsome_icon('icon-instagram'),
+        'priority' => 25,
+    );
     return $links;
 }, 10, 2);
 PHP;
